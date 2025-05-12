@@ -1,11 +1,11 @@
-#include <LiquidCrystalRus.h>
+#include <LiquidCrystal.h>
 
 #define B1_PIN 7
 #define B2_PIN 6
 #define B3_PIN 5
 #define B4_PIN 4
 
-LiquidCrystalRus lcd(13, 12, 11, 10, 9, 8);
+LiquidCrystal lcd(13, 12, 11, 10, 9, 8);
 
 enum SystemState {
   MAIN_MENU,
