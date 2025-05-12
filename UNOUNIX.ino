@@ -11,7 +11,8 @@ enum SystemState {
   MAIN_MENU,
   APP_TERMINAL,
   GAME_JUMPER,
-  GAME_CLICKER
+  GAME_CLICKER,
+  SCREENSAVER
 };
 
 SystemState currentState = MAIN_MENU;
@@ -37,6 +38,23 @@ unsigned long lastClickTime = 0;
 String inputBuffer = "";
 bool refreshDisplay = true;
 
+unsigned long lastActivityTime = 0;
+const unsigned long screensaverTimeout = 10000; // 10 секунд бездействия
+int animPos = 0;
+int animDirection = 1;
+byte ship[8] = { // Собственный символ для анимации
+  0b00000,
+  0b01110,
+  0b11111,
+  0b11111,
+  0b01110,
+  0b00100,
+  0b00000,
+  0b00000
+};
+
+SystemState previousState = MAIN_MENU;
+
 void setup() {
   pinMode(B1_PIN, INPUT_PULLUP);
   pinMode(B2_PIN, INPUT_PULLUP);
@@ -44,6 +62,8 @@ void setup() {
   pinMode(B4_PIN, INPUT_PULLUP);
   
   lcd.begin(16, 2);
+  lcd.createChar(0, ship); // Регистрируем собственный символ
+  lastActivityTime = millis();
   Serial.begin(9600);
   
   lcd.print("Arduino UNIX 0.5");
@@ -53,6 +73,12 @@ void setup() {
 }
 
 void loop() {
+  if(millis() - lastActivityTime > screensaverTimeout && currentState != SCREENSAVER) {
+    previousState = currentState;
+    currentState = SCREENSAVER;
+    refreshDisplay = true;
+  }
+
   handleButtons();
   
   if(Serial.available()) {
@@ -71,6 +97,7 @@ void loop() {
       case APP_TERMINAL: drawTerminal(); break;
       case GAME_JUMPER: drawJumperGame(); break;
       case GAME_CLICKER: drawClickerGame(); break;
+      case SCREENSAVER: drawScreensaver(); break;
     }
     refreshDisplay = false;
   }
@@ -78,9 +105,26 @@ void loop() {
   if(currentState == GAME_JUMPER && gameActive) {
     gameJumperLogic();
   }
+
+  if(currentState == SCREENSAVER && millis() - lastUpdate > 300) {
+    animPos += animDirection;
+    if(animPos >= 13 || animPos <= 0) animDirection *= -1;
+    refreshDisplay = true;
+    lastUpdate = millis();
+  }
 }
 
 void handleButtons() {
+  if(digitalRead(B1_PIN) == LOW || digitalRead(B2_PIN) == LOW || 
+     digitalRead(B3_PIN) == LOW || digitalRead(B4_PIN) == LOW) {
+    lastActivityTime = millis();
+    if(currentState == SCREENSAVER) {
+      currentState = previousState;
+      refreshDisplay = true;
+      return;
+    }
+  }
+
   static unsigned long lastDebounce = 0;
   if(millis() - lastDebounce < 100) return;
   lastDebounce = millis();
@@ -103,6 +147,24 @@ void handleButtons() {
       if(digitalRead(B3_PIN) == LOW) executeMenu();
       if(digitalRead(B4_PIN) == LOW) returnToMenu();
   }
+}
+
+void drawScreensaver() {
+  lcd.clear();
+  
+  // Анимированный корабль
+  lcd.setCursor(animPos, 0);
+  lcd.write(byte(0));
+  
+  // Бегущая строка
+  static byte textPos = 0;
+  String text = "Arduino UNIX OS ";
+  int len = text.length();
+  String displayText = text.substring(textPos) + text + text;
+  lcd.setCursor(0, 1);
+  lcd.print(displayText.substring(0, 16));
+  
+  textPos = (textPos + 1) % len;
 }
 
 void handleMenuButtons() {
@@ -186,7 +248,7 @@ void processCommand(String cmd) {
     args = cmd.substring(spaceIndex + 1);
   }
   
-  mainCmd.toLowerCase();
+ mainCmd.toLowerCase(); // Теперь присваиваем результат
   
   Serial.print("$ ");
   Serial.println(cmd);
@@ -201,7 +263,7 @@ void processCommand(String cmd) {
     Serial.println("print [msg] - Print message");
   }
   else if(mainCmd == "clear") {
-    Serial.write(12);
+    Serial.write(12); // ASCII clear screen
   }
   else if(mainCmd == "about") {
     Serial.println("Arduino UNIX v0.5");
@@ -232,7 +294,7 @@ void printNeofetch() {
   Serial.print("RAM: ");
   Serial.print(freeMemory());
   Serial.println(" bytes");
-  Serial.println("Hacks: ");
+  Serial.print("Hacks: ");
   Serial.print(hackCount);
   Serial.println(" cracks");
 }
