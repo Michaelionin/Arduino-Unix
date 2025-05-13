@@ -4,6 +4,7 @@
 #define B2_PIN 6
 #define B3_PIN 5
 #define B4_PIN 4
+#define SPK_PIN 3
 
 LiquidCrystal lcd(13, 12, 11, 10, 9, 8);
 
@@ -56,6 +57,7 @@ byte ship[8] = { // Собственный символ для анимации
 SystemState previousState = MAIN_MENU;
 
 void setup() {
+  tone(SPK_PIN, 1000, 500);
   Serial.begin(9600);
   Serial.println("Serial daemon started");
   Serial.println("Starting button driver...");
@@ -178,18 +180,22 @@ void drawScreensaver() {
 
 void handleMenuButtons() {
   if(digitalRead(B1_PIN) == LOW) {
+    tone(SPK_PIN, 1000, 50);
     menuPos = (menuPos - 1 + 4) % 4;
     refreshDisplay = true;
   }
   if(digitalRead(B2_PIN) == LOW) {
+    tone(SPK_PIN, 1000, 50);
     menuPos = (menuPos + 1) % 4;
     refreshDisplay = true;
   }
   if(digitalRead(B3_PIN) == LOW) {
+    tone(SPK_PIN, 1000, 50);
     executeMenu();
     refreshDisplay = true;
   }
   if(digitalRead(B4_PIN) == LOW) {
+    tone(SPK_PIN, 1000, 50);
     returnToMenu();
   }
 }
