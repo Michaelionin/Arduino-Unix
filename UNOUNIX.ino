@@ -56,20 +56,29 @@ byte ship[8] = { // Собственный символ для анимации
 SystemState previousState = MAIN_MENU;
 
 void setup() {
+  Serial.begin(9600);
+  Serial.println("Serial daemon started");
+  Serial.println("Starting button driver...");
   pinMode(B1_PIN, INPUT_PULLUP);
   pinMode(B2_PIN, INPUT_PULLUP);
   pinMode(B3_PIN, INPUT_PULLUP);
   pinMode(B4_PIN, INPUT_PULLUP);
-  
+  Serial.println("OK");
+  Serial.println("Starting lcd driver...");
   lcd.begin(16, 2);
   lcd.createChar(0, ship); // Регистрируем собственный символ
+  Serial.println("OK");
   lastActivityTime = millis();
-  Serial.begin(9600);
-  
+  Serial.println("Showing bootscreen...");
+  lcd.setCursor(0, 0);
   lcd.print("Arduino UNIX 0.5");
-  lcd.setCursor(0, 1);
+  
+  lcd.setCursor(1, 1);
   lcd.print("Initializing...");
+  Serial.println("OK");
   delay(1000);
+  Serial.println("Welcome to Arduino UNIX! Type help to help.");
+
 }
 
 void loop() {
@@ -285,11 +294,15 @@ void processCommand(String cmd) {
 }
 
 void printNeofetch() {
-  Serial.println("   /\\_/\\    |\\_/|");
-  Serial.println("  (◕‿◕)   /0 0\\");
-  Serial.println("  / >  \\  ( ='=)");
-  Serial.println(" /_/ \\_\\   )\"\"(");
-  Serial.println("----------");
+  Serial.print("     ██████            ██████           \n");
+  Serial.print("  ████████████      ████████████        \n");
+  Serial.print(" █████      ████████████     █████      \n");
+  Serial.print("███          ████████   ████    ███     \n");
+  Serial.print("███  ██████   ██████   ██████   ███     \n");
+  Serial.print("███           ██████    ████    ███     \n");
+  Serial.print("████        ████ █████         ████     \n");
+  Serial.print(" ██████████████    ██████████████       \n");
+  Serial.print("   ██████████        ██████████          \n");
   Serial.print("OS: Arduino UNIX 0.5\n");
   Serial.print("RAM: ");
   Serial.print(freeMemory());
