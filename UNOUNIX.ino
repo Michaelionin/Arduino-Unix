@@ -15,7 +15,8 @@ enum SystemState {
   GAME_CLICKER,
   SCREENSAVER
 };
-
+//username имя пользователя
+String userName = "root";
 SystemState currentState = MAIN_MENU;
 int menuPos = 0;
 const char* menuItems[] = {"Terminal", "Doggy Jumper", "Hacky Hack", "System Info"};
@@ -74,12 +75,11 @@ void setup() {
   Serial.println("Showing bootscreen...");
   lcd.setCursor(0, 0);
   lcd.print("Arduino UNIX 0.5");
-  
   lcd.setCursor(1, 1);
-  lcd.print("Initializing...");
+  lcd.print("Welcome," + userName + "!");
   Serial.println("OK");
   delay(1000);
-  Serial.println("Welcome to Arduino UNIX! Type help to help.");
+  Serial.println("Welcome to Arduino UNIX," + userName + "! Type help to help.");
 
 }
 
@@ -276,6 +276,7 @@ void processCommand(String cmd) {
     Serial.println("about     - System info");
     Serial.println("inofetch  - System summary");
     Serial.println("print [msg] - Print message");
+    Serial.println("whoami - show username");
   }
   else if(mainCmd == "clear") {
     Serial.write(12); // ASCII clear screen
@@ -292,6 +293,9 @@ void processCommand(String cmd) {
   }
   else if(mainCmd == "menu") {
     currentState = MAIN_MENU;
+  }
+  else if(mainCmd == "whoami") {
+  Serial.println (userName) ;
   }
   else {
     Serial.print("Command not found: ");
@@ -313,6 +317,7 @@ void printNeofetch() {
   Serial.print("RAM: ");
   Serial.print(freeMemory());
   Serial.println(" bytes");
+  Serial.println("Username - " + userName);
   Serial.print("Hacks: ");
   Serial.print(hackCount);
   Serial.println(" cracks");
