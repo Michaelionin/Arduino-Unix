@@ -17,6 +17,7 @@ enum SystemState {
 };
 //username имя пользователя
 String userName = "root";
+String sysVer = "0.6" ;
 SystemState currentState = MAIN_MENU;
 int menuPos = 0;
 const char* menuItems[] = {"Terminal", "Doggy Jumper", "Hacky Hack", "System Info"};
@@ -74,7 +75,7 @@ void setup() {
   lastActivityTime = millis();
   Serial.println("Showing bootscreen...");
   lcd.setCursor(0, 0);
-  lcd.print("Arduino UNIX 0.5");
+  lcd.print("Arduino UNIX "+ sysVer);
   lcd.setCursor(1, 1);
   lcd.print("Welcome," + userName + "!");
   Serial.println("OK");
@@ -282,7 +283,7 @@ void processCommand(String cmd) {
     Serial.write(12); // ASCII clear screen
   }
   else if(mainCmd == "about") {
-    Serial.println("Arduino UNIX v0.5");
+    Serial.println("Arduino UNIX v" + sysVer);
     Serial.println("With Hacky Hack");
   }
   else if(mainCmd == "inofetch") {
@@ -313,7 +314,7 @@ void printNeofetch() {
   Serial.print("████        ████ █████         ████     \n");
   Serial.print(" ██████████████    ██████████████       \n");
   Serial.print("   ██████████        ██████████          \n");
-  Serial.print("OS: Arduino UNIX 0.5\n");
+  Serial.print("OS: Arduino UNIX "+ sysVer +"\n");
   Serial.print("RAM: ");
   Serial.print(freeMemory());
   Serial.println(" bytes");
